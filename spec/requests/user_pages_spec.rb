@@ -23,13 +23,7 @@ describe "User pages" do
       end
 
       describe "bad username, email, & password" do
-        before do
-	  fill_in "Name",         with: " "
-	  fill_in "Email",        with: "user@example..com"
-	  fill_in "Password",     with: "fooba"
-	  fill_in "Confirmation", with: "fooba"
-          click_button submit
-        end
+        before { submit_signup(' ', 'user@example..com', 'fooba', 'fooba') }
 
         it { should have_title('Sign up') }
         it { should have_content('The form contains 3 errors.') }
@@ -39,13 +33,7 @@ describe "User pages" do
       end
 
       describe "mismatching passwords" do
-        before do
-	  fill_in "Name",         with: "Dan Wrona "
-	  fill_in "Email",        with: "djw@1.com"
-	  fill_in "Password",     with: "passwordOne"
-	  fill_in "Confirmation", with: "passwordTwo"
-          click_button submit
-        end
+	before { submit_signup('Dan Wrona', 'djw@1.com', 'passwordOne', 'passwordTwo') }
 
         it { should have_title('Sign up') }
         it { should have_content('The form contains 1 error.') }
@@ -54,12 +42,7 @@ describe "User pages" do
     end
 
     describe "with valid information" do
-      before do
-        fill_in "Name",         with: "Example User"
-        fill_in "Email",        with: "user@example.com"
-        fill_in "Password",     with: "foobar"
-        fill_in "Confirmation", with: "foobar"
-      end
+      before { submit_signup('Example User', 'user@example.com', 'foobar', 'foobar') }
 
       it "should create a user" do
         expect { click_button submit }.to change(User, :count).by(1)
