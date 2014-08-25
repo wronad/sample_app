@@ -143,5 +143,45 @@ describe "User pages" do
       specify { expect(user.reload.name).to  eq new_name }
       specify { expect(user.reload.email).to eq new_email }
     end
+
+    describe "forbidden attributes" do
+      let(:params) do
+        { user: { admin: true, password: user.password,
+                  password_confirmation: user.password } }
+      end
+      before do
+        sign_in user, no_capybara: true
+        patch user_path(user), params
+      end
+      specify { expect(user.reload).not_to be_admin }
+    end
+
+=begin
+    # TODO: figure out how to restrict admin from altering restrict
+    #       .permit on admin flag
+    describe "admin cannot remove admin flag" do
+      let(:adminUser) { FactoryGirl.create(:admin) }
+      let(:params) do
+        { adminUser: { admin: false, password: adminUser.password,
+                  password_confirmation: adminUser.password } }
+      end
+      before do
+        sign_in user, no_capybara: true
+        patch user_path(adminUser), params
+      end
+      specify { expect(user.reload).not_to be_admin }
+    end
+=end
+  end
+
+  describe "already signed in redirect" do
+    let(:user) { FactoryGirl.create(:user) }
+    before { sign_in user }
+    before { click_link 'Home' }
+    before { click_link 'Sign up' }
+
+    it { should_not have_title(full_title('Sign up')) }
+    it { should have_link('Sign up') }
+    it { should have_notice_message('Already signed into your account') }
   end
 end
